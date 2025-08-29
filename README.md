@@ -1,2 +1,2 @@
-# Libreria_Macronnect
-Codigo de la Libreria para consumir API Macronnect
+# Libreria_Macronnect_PHP 
+Codigo de la Libreria en PHP para consumir API Macronnect 
