@@ -27,6 +27,8 @@ require_once(__DIR__ . "/DataEndpoint.php");
 require_once(__DIR__ . "/ResponseAPI.php");
 require_once(__DIR__ . "/Statement.php");
 
+// Import Connection Database
+include_once(__DIR__ . "/../../Modelo/DataConnection_Sisga2.php");
 
 class ApiMacronnect {
 
@@ -117,6 +119,7 @@ class ApiMacronnect {
     public function __construct(array $dataUserConnection, string $nameDatabase) {
         $this->infoAuth = $dataUserConnection;
         $this->tenantId = $nameDatabase;
+        $this->token = $this->getToken();
     }
     
 
@@ -125,13 +128,36 @@ class ApiMacronnect {
         // Get Data Endpoint
         foreach(self::$endpoints as $dataEndpoint_i) {
             if ($dataEndpoint_i->getEndpoint() == $endpoint && $dataEndpoint_i->getMethod() == $method) {
-                $statement = new Statement(clone $dataEndpoint_i, $this->tenantId);
+                $statement = new Statement(clone $dataEndpoint_i, $this->tenantId, $this->token);
                 return $statement;
             }
         }
         throw new GeneralError("Error Endpoint no Definido", "El Endpoint '$endpoint' de Tipo '$method' no esta definido en la clase ApiMacronnect");
     }    
 
+    private function getToken(): string {
+        
+        $dsn = "mysql:host=" . DataConnection_Sisga2::$HOST . ";dbname=" . DataConnection_Sisga2::$BDNAME . ";charset=utf8mb4";
+
+        try {
+            $pdo = new PDO($dsn, DataConnection_Sisga2::$USUARIO, DataConnection_Sisga2::$PASSWORD);
+            // Enable Exceptions
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            throw new GeneralError("Error de Conexion", $e->getMessage());
+        }
+
+        $sql = "SELECT value_field FROM Macronnect_Session WHERE name_field=? AND username=?";
+        $stmt = $pdo->prepare($sql);    
+        $stmt->execute([ "Token", ($this->infoAuth)["usuario"] ]);
+
+        $response = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (! $response) {
+           throw new GeneralError("Error Consultar Token", "No se pudo obtener el Token de Sesion");
+        }
+        $this->token = $response["value_field"];
+        return $this->token;
+    }
 
 
     // Function to Create New Token

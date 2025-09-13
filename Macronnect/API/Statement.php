@@ -30,36 +30,17 @@
         private int $daysMaxSaveFiles = 2;
         
 
-        public function __construct(DataEndpoint $dataEndpoint, string $tenantId) {
+        public function __construct(DataEndpoint $dataEndpoint, string $tenantId, string $token) {
             $this->dataEndpoint = $dataEndpoint;
             $this->tenantId = $tenantId;
+            $this->token = $token;
         }
 
         public function getToken(): string {
             if ($this->token != null) {
                 return $this->token;
             }
-
-            $dsn = "mysql:host=" . DataConnection_Sisga2::$HOST . ";dbname=" . DataConnection_Sisga2::$BDNAME . ";charset=utf8mb4";
-
-            try {
-                $pdo = new PDO($dsn, DataConnection_Sisga2::$USUARIO, DataConnection_Sisga2::$PASSWORD);
-                // Habilitar excepciones
-                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            } catch (PDOException $e) {
-                throw new GeneralError("Error de Conexion", $e->getMessage());
-            }
-
-            $sql = "SELECT value_field FROM Macronnect_Session WHERE name_field=?";
-            $stmt = $pdo->prepare($sql);    
-            $stmt->execute(["Token"]);
-
-            $response = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (! $response) {
-                throw new GeneralError("Error Consultar Token", "No se pudo obtener el Token de Sesion");
-            }
-            $this->token = $response["value_field"];
-            return $this->token;
+            throw new GeneralError("Error Consultar Token", "El Token tiene un Valor NULL");
         }
 
 
