@@ -89,7 +89,7 @@
                 return $this->consumeEndpoint_POST();
             }
             else {
-                throw new GeneralError("Error Tipo Metodo", "El Metodo $method no esta definido en ApiMacronnect");
+                throw new GeneralError("Error Tipo Metodo", "El Metodo " . $this->dataEndpoint->getMethod() . " no esta definido en Statement");
             }
         }
 
