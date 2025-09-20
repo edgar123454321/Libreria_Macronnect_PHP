@@ -313,9 +313,9 @@
             $uuid = Functions::generate_uuid();
             $filename = $this->nameFileDownload;
             if (strstr($filename, '.')) {
-                $filename = strstr($filename, '.', true); // Return all before point
+                $filename = strstr($filename, '.', true); // Return name without Extension
             }
-            $relativePath = "Documents_Download/$uuid" . "__" . date("Y_m_d_H_i_s") . "__" . $filename;
+            $relativePath = "Documents_Download/" . date("Y_m_d_H_i_s") . "__" . "$filename" . "__" . "$uuid";
             $nameFolder = __DIR__ . "/" . $relativePath;
             mkdir($nameFolder);
 
