@@ -120,6 +120,7 @@ class ApiMacronnect {
         $this->infoAuth = $dataUserConnection;
         $this->tenantId = $nameDatabase;
         $this->token = $this->getToken();
+        $this->httpClient = new Client();
     }
     
 
@@ -128,7 +129,7 @@ class ApiMacronnect {
         // Get Data Endpoint
         foreach(self::$endpoints as $dataEndpoint_i) {
             if ($dataEndpoint_i->getEndpoint() == $endpoint && $dataEndpoint_i->getMethod() == $method) {
-                $statement = new Statement(clone $dataEndpoint_i, $this->tenantId, $this->token);
+                $statement = new Statement(clone $dataEndpoint_i, $this->tenantId, $this->token, $this->httpClient);
                 return $statement;
             }
         }

@@ -2,7 +2,6 @@
     include_once(__DIR__ . "/../../Modelo/DataConnection_Sisga2.php");
     require_once(__DIR__ . "/../../GuzzleHttp/vendor/autoload.php");
     use GuzzleHttp\Client;
-    use GuzzleHttp\Cookie\CookieJar;
     use GuzzleHttp\Exception\RequestException;
 
     class Statement {
@@ -14,6 +13,9 @@
 
         // Token
         private ?string $token = null;
+        
+        // Http Client to Make Request
+        private Client $httpClient;
 
         // Parameters Request
         private array $parameters_GET = [];
@@ -30,10 +32,11 @@
         private int $daysMaxSaveFiles = 2;
         
 
-        public function __construct(DataEndpoint $dataEndpoint, string $tenantId, string $token) {
+        public function __construct(DataEndpoint $dataEndpoint, string $tenantId, string $token, Client $httpClient) {
             $this->dataEndpoint = $dataEndpoint;
             $this->tenantId = $tenantId;
             $this->token = $token;
+            $this->httpClient = $httpClient;
         }
 
         public function getToken(): string {
@@ -118,10 +121,9 @@
                 'tenantId' => $this->tenantId,
                 'cookie' => $this->token
             ];
-            $client = new Client();
             $jsonData = [];
             try {
-                $response = $client->request('GET', $endpoint, [
+                $response = $this->httpClient->request('GET', $endpoint, [
                     'headers' => $headers
                 ]);
                 $body = $response->getBody();
@@ -228,7 +230,6 @@
             ];
 
             // Client
-            $client = new Client();
             $jsonData = [];
 
             /*return [
@@ -239,7 +240,7 @@
             ];*/
 
             try {
-                $response = $client->request('POST', $endpoint, [
+                $response = $this->httpClient->request('POST', $endpoint, [
                     'headers' => $headers,
                     'body' => json_encode($parameters_POST_normalized)
                 ]);
@@ -260,7 +261,7 @@
                     if (is_string($jsonData)) {
                         $jsonData = [$jsonData];
                     }
-                    if (is_float($jsonData)) {
+                    elseif (is_float($jsonData)) {
                         $jsonData = [$jsonData];
                     }
                 }
